@@ -5,8 +5,13 @@ console.log(require.resolve('express-ejs-layouts'));
 
 const expressLayouts = require('express-ejs-layouts');
 
+const connectDB = require("./server/config/db.js");
+
 const app = express();
 const PORT = process.env.PORT || 5000;
+
+//connect to DB
+connectDB(); 
 
 app.use(express.static("public"));
 

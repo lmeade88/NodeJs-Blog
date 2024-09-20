@@ -5,13 +5,51 @@ const Post = require("../models/Post");
 //Routes
 //  GET /
 //  HOME
-router.get("", (req, res) => {
+router.get("", async (req, res) => {
+    try {
     const locals = {
-        title: "NodeJs Blog",
-        description: "Simple Blog created with NodeJs, Express & MongoDB."
+             title: "NodeJs Blog",
+            description: "Simple Blog created with NodeJs, Express & MongoDB."
+        }
+    
+        let perPage = 5;
+        let page = req.query.page || 1;
+
+        const data = await Post.aggregate([ { $sort: {createdAt: -1 } }])
+        .skip(perPage * page - perPage)
+        .limit(perPage)
+        .exec();
+
+        const count = await Post.countDocuments();
+        const nextPage = parseInt(page) + 1;
+        const hasNextPage = nextPage <= Math.ceil(count / perPage);
+
+        res.render("index", { 
+            locals, 
+            data,
+            currentPage: page,
+            nextPage: hasNextPage ? nextPage : null
+        });
+
+
+        res.render("index", { locals, data });
+    }   catch (error) {
+        console.log(error);
     }
-    res.render("index", {locals});
 });
+
+// router.get("", async (req, res) => {
+//     const locals = {
+//         title: "NodeJs Blog",
+//         description: "Simple Blog created with NodeJs, Express & MongoDB."
+//     }
+//     try {
+//         const data = await Post.find();
+//         res.render("index", { locals, data });
+//     }   catch (error) {
+//         console.log(error);
+//     }
+// });
 
 router.get("/about", (req, res) => {
     res.render("about");
